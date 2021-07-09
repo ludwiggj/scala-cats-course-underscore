@@ -1,4 +1,4 @@
-package scala_cats.chapter01
+package scala_cats.chapter01.json
 
 object Main {
   private def summon(): Unit = {

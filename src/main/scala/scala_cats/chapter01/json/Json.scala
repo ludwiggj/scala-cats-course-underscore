@@ -1,4 +1,4 @@
-package scala_cats.chapter01
+package scala_cats.chapter01.json
 
 // Define a very simple JSON AST
 sealed trait Json

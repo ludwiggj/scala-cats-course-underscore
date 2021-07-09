@@ -1,4 +1,4 @@
-package scala_cats.chapter01
+package scala_cats.chapter01.json
 
 object JsonWriterInstances {
   implicit val stringWriter: JsonWriter[String] = (value: String) => JsString(value)
