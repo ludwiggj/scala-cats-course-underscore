@@ -83,4 +83,28 @@ class SemigroupSpec extends UnitSpec {
     import scala_cats.chapter02.exercises.ex_2_4.SetSemigroup.setSymmetricDifferenceSemigroup
     assert(associativeLaw(Set(1, 2), Set(2, 3), Set(3, 4)))
   }
+
+  "map semigroup" can "add maps" in {
+    import cats.instances.int._
+    import cats.instances.map._
+    import cats.syntax.semigroup._
+
+    val map1 = Map("a" -> 1, "b" -> 2)
+    val map2 = Map("b" -> 3, "d" -> 4)
+
+    assert((map1 |+| map2) == Map("a" -> 1, "b" -> 5, "d" -> 4))
+  }
+
+  "tuple semigroup" can "add maps" in {
+    import cats.instances.tuple._
+    import cats.instances.int._
+    import cats.instances.string._
+    import cats.syntax.semigroup._
+
+    val tuple1 = ("hello", 123)
+    val tuple2 = ("world", 321)
+
+    // Extra pair of brackets needed for expected result...
+    assert((tuple1 |+| tuple2) == (("helloworld", 444)))
+  }
 }

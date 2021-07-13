@@ -40,7 +40,7 @@ class MonoidSpec extends UnitSpec {
     assert(identityLaw(Set(1, 2, 3)))
     assert(identityLaw(Set.empty[Int]))
   }
-  
+
   "set symmetric difference" can "obey identity law" in {
     import scala_cats.chapter02.exercises.ex_2_4.SetMonoid.setSymmetricDifferenceMonoid
     assert(identityLaw(Set(1, 2, 3)))
