@@ -39,6 +39,7 @@ class FunctorSpec extends UnitSpec with ScalaFutures {
   it can "map options" in {
     import cats.Functor
     import cats.instances.option._
+    //noinspection OptionEqualsSome
     assert(Functor[Option].map(Some(123))(_.toString) == Some("123"))
   }
 
@@ -47,6 +48,7 @@ class FunctorSpec extends UnitSpec with ScalaFutures {
     import cats.instances.option._
     val func: Int => Int = (x: Int) => x + 1
     val liftedFunc: Option[Int] => Option[Int] = Functor[Option].lift(func)
+    //noinspection OptionEqualsSome
     assert(liftedFunc(Option(1)) == Some(2))
   }
 
@@ -68,6 +70,7 @@ class FunctorSpec extends UnitSpec with ScalaFutures {
   it can "do abstract maths" in {
     import cats.instances.option._
 
+    //noinspection OptionEqualsSome
     assert(doMath(Option(20)) == Some(42))
 
     import cats.instances.list._
@@ -80,6 +83,7 @@ class FunctorSpec extends UnitSpec with ScalaFutures {
       override def map[A, B](fa: Option[A])(f: A => B): Option[B] = fa map f
     }
 
+    //noinspection OptionEqualsSome
     assert(doMath(Option(20)) == Some(42))
   }
 
@@ -119,7 +123,7 @@ class FunctorSpec extends UnitSpec with ScalaFutures {
     val t1 = Branch(Branch(Leaf("a"), Branch(Leaf("b"), Leaf("c"))), Leaf("d"))
     val t2 = Tree.branch(Branch(Leaf("a"), Branch(Leaf("b"), Leaf("c"))), Leaf("d"))
     val expected = Branch(Branch(Leaf("A"), Branch(Leaf("B"), Leaf("C"))), Leaf("D"))
-    
+
     assert(Functor[Tree].map(t1)(_.toUpperCase) == expected)
     assert(t2.map(_.toUpperCase) == expected)
   }
