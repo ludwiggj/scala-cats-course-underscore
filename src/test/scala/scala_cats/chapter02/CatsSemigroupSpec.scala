@@ -8,7 +8,7 @@ class CatsSemigroupSpec extends UnitSpec {
     import cats.Semigroup
     import cats.instances.string._
 
-    assert(Semigroup[String].combine("Hi ", "there") == "Hi there")
-    assert(Semigroup.apply[String].combine("Hi ", "there") == "Hi there")
+    assert(Semigroup[String].combine("Hi ", "there") === "Hi there")
+    assert(Semigroup.apply[String].combine("Hi ", "there") === "Hi there")
   }
 }

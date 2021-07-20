@@ -8,71 +8,71 @@ class InvariantFunctorSpec extends UnitSpec {
 
   "int codec" can "encode an int" in {
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.intCodec
-    assert(encode(6) == "6")
+    assert(encode(6) === "6")
 
-    assert(intCodec.encode(6) == "6")
+    assert(intCodec.encode(6) === "6")
   }
 
   it can "decode a string" in {
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.intCodec
-    assert(decode("66") == 66)
+    assert(decode("66") === 66)
 
-    assert(intCodec.decode("66") == 66)
+    assert(intCodec.decode("66") === 66)
   }
 
   "boolean codec" can "encode a boolean" in {
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.booleanCodec
-    assert(encode(false) == "false")
+    assert(encode(false) === "false")
 
-    assert(booleanCodec.encode(false) == "false")
+    assert(booleanCodec.encode(false) === "false")
   }
 
   it can "decode a string" in {
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.booleanCodec
-    assert(!decode("false"))
+    assert(decode("false") !== true)
 
-    assert(!booleanCodec.decode("false"))
+    assert(booleanCodec.decode("false") !== true)
   }
 
   "double codec" can "encode an double" in {
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.doubleCodec
-    assert(encode(2.5d) == "2.5")
+    assert(encode(2.5d) === "2.5")
 
-    assert(doubleCodec.encode(2.5d) == "2.5")
+    assert(doubleCodec.encode(2.5d) === "2.5")
   }
 
   it can "decode a string" in {
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.doubleCodec
 
-    assert(decode[Double]("3.14d") == 3.14d)
-    assert(decode("3.14d") == 3.14d)
-    assert(doubleCodec.decode("3.14d") == 3.14d)
+    assert(decode[Double]("3.14d") === 3.14d)
+    assert(decode("3.14d") === 3.14d)
+    assert(doubleCodec.decode("3.14d") === 3.14d)
   }
 
   "box codec" can "encode a box" in {
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.boxCodec
 
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.intCodec
-    assert(encode(Box(24)) == "24")
+    assert(encode(Box(24)) === "24")
 
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.booleanCodec
-    assert(encode(Box(true)) == "true")
+    assert(encode(Box(true)) === "true")
 
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.doubleCodec
-    assert(encode(Box(2.5d)) == "2.5")
+    assert(encode(Box(2.5d)) === "2.5")
   }
 
   it can "decode a string" in {
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.boxCodec
 
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.intCodec
-    assert(decode[Box[Int]]("24") == Box(24))
+    assert(decode[Box[Int]]("24") === Box(24))
 
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.booleanCodec
-    assert(decode[Box[Boolean]]("true") == Box(true))
+    assert(decode[Box[Boolean]]("true") === Box(true))
 
     import scala_cats.chapter03.ex_3_6_2_1.InvariantFunctor.Codecs.doubleCodec
-    assert(decode[Box[Double]]("2.5") == Box(2.5d))
+    assert(decode[Box[Double]]("2.5") === Box(2.5d))
   }
 
   // Imagine we want to produce a Monoid for Scala’s Symbol type. Cats doesn’t
@@ -92,20 +92,16 @@ class InvariantFunctorSpec extends UnitSpec {
 
   "symbol monoid" can "combine symbols" in {
     // NOTE: Following imports suggested by page 70 don't work wrt finding imap method
-    // import cats.Monoid
-    // import cats.instances.string._ // for Monoid
-    // import cats.syntax.invariant._ // for imap
-    // import cats.syntax.semigroup._ // for |+|
-
-    // So use these instead
     import cats.Monoid
-    import cats.implicits._
+    import cats.instances.string._ // for Monoid
+    import cats.syntax.invariant._ // for imap
+    import cats.syntax.semigroup._ // for |+|
 
     implicit val symbolMonoid: Monoid[Symbol] =
       Monoid[String].imap(Symbol.apply)(_.name)
 
-    assert(Monoid[Symbol].empty.toString() == "'")
+    assert(Monoid[Symbol].empty.toString() === "'")
 
-    assert((Symbol("a") |+| Symbol("few") |+| Symbol("words")).toString() == "'afewwords")
+    assert((Symbol("a") |+| Symbol("few") |+| Symbol("words")).toString() === "'afewwords")
   }
 }

@@ -5,6 +5,16 @@ import cats.syntax.semigroup._ // for |+|
 
 case class Order(totalCost: Double, quantity: Double)
 
+object Order {
+  import cats.Eq
+  import cats.syntax.eq._
+
+  implicit val eqOrder: Eq[Order] = Eq.instance[Order] { (o1, o2) =>
+    o1.totalCost === o2.totalCost &&
+      o1.quantity === o2.quantity
+  }
+}
+
 object SuperAdder {
   private def addList[T](items: List[T])(implicit m: Monoid[T]): T =
     items.foldLeft(m.empty)(m.combine)

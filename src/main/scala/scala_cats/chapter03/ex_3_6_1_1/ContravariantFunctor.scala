@@ -10,7 +10,7 @@ object  ContravariantFunctor {
 
   def format[A](a: A)(implicit p: Printable[A]) : String = p.format(a)
 
-  val stringPrintable: Printable[String] = (value: String) => s"'${value}'"
+  val stringPrintable: Printable[String] = (value: String) => s"'$value'"
 
   val booleanPrintable: Printable[Boolean] = (value: Boolean) => if (value) "yes" else "no"
 }

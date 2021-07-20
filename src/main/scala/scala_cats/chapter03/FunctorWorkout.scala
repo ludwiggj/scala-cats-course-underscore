@@ -11,7 +11,7 @@ object FunctorWorkout {
       Future(123).
         map(n => n + 1).
         map(n => n * 2).
-        map(n => s"${n}!")
+        map(n => s"$n!")
     println(Await.result(future, 1.second))
 
     val future1 = {

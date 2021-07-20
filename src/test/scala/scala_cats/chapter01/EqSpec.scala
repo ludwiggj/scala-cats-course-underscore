@@ -4,20 +4,18 @@ import scala_cats.UnitSpec
 import cats.Eq
 import cats.instances.int._
 import cats.instances.option._
-import cats.tests.StrictCatsEquality
 import scala_cats.chapter01.exercises.ex_1_5_5.Cat
 
-// See https://stackoverflow.com/questions/47501997/cats-eqs-with-scalatest
-class EqSpec extends UnitSpec with StrictCatsEquality {
-  val eqInt = Eq[Int]
+class EqSpec extends UnitSpec {
+  private val eqInt = Eq[Int]
 
-  val cat1: Cat = Cat("Garfield", 38, "orange and black")
-  val cat2: Cat = Cat("Heathcliff", 33, "orange and black")
+  private val cat1: Cat = Cat("Garfield", 38, "orange and black")
+  private val cat2: Cat = Cat("Heathcliff", 33, "orange and black")
 
   import Cat.eqCat
 
-  val optionCat1: Option[Cat] = Option(cat1)
-  val optionCat2: Option[Cat] = Option.empty
+  private val optionCat1: Option[Cat] = Option(cat1)
+  private val optionCat2: Option[Cat] = Option.empty
 
   "eqInt" can "compare ints" in {
     assert(eqInt.eqv(1, 1))

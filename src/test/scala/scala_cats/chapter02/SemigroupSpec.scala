@@ -60,8 +60,8 @@ class SemigroupSpec extends UnitSpec {
 
   it can "add two sets together" in {
     import scala_cats.chapter02.exercises.ex_2_4.SetSemigroup.setAddSemigroup
-    assert(Semigroup[Set[Int]].combine(Set(1), Set(2)) == Set(1, 2))
-    assert(Semigroup[Set[String]].combine(Set("A"), Set("B", "C")) == Set("A", "B", "C"))
+    assert(Semigroup[Set[Int]].combine(Set(1), Set(2)) === Set(1, 2))
+    assert(Semigroup[Set[String]].combine(Set("A"), Set("B", "C")) === Set("A", "B", "C"))
   }
 
   "set union" can "obey associative law" in {
@@ -92,7 +92,7 @@ class SemigroupSpec extends UnitSpec {
     val map1 = Map("a" -> 1, "b" -> 2)
     val map2 = Map("b" -> 3, "d" -> 4)
 
-    assert((map1 |+| map2) == Map("a" -> 1, "b" -> 5, "d" -> 4))
+    assert((map1 |+| map2) === Map("a" -> 1, "b" -> 5, "d" -> 4))
   }
 
   "tuple semigroup" can "add maps" in {
@@ -105,6 +105,6 @@ class SemigroupSpec extends UnitSpec {
     val tuple2 = ("world", 321)
 
     // Extra pair of brackets needed for expected result...
-    assert((tuple1 |+| tuple2) == (("helloworld", 444)))
+    assert((tuple1 |+| tuple2) === (("helloworld", 444)))
   }
 }
