@@ -28,6 +28,56 @@ object WriterMultiThreadedWorkout {
     } yield ans
   }
 
+  def factorial3(n: Logged[Int]): Logged[Int] = {
+    for {
+      ans <- if (n.value == 0) {
+        1.pure[Logged]
+      } else {
+        slowly(factorial3(n.map(_ - 1)).map(_ * n.value))
+      }
+      _ <- Vector(s"fact ${n.value} $ans").tell
+    } yield ans
+  }
+
+  def factorial4(n: Logged[Int]): Logged[Int] = {
+    val ans = if (n.value == 0) {
+      1.pure[Logged]
+    } else {
+      slowly(factorial4(n.map(_ - 1)).map(_ * n.value))
+    }
+    for {
+      a <- ans
+      _ <- Vector(s"fact ${n.value} ${ans.value}").tell
+    } yield a
+  }
+
+  def factorial5(n: Logged[Int]): Logged[Int] = {
+    val ans = if (n.value == 0) {
+      1.pure[Logged]
+    } else {
+      slowly(factorial4(n.map(_ - 1)).map(_ * n.value))
+    }
+    ans.flatMap(a => Vector(s"fact ${n.value} ${ans.value}").tell.map(_ => a))
+  }
+
+  def factorial6(n: Logged[Int]): Logged[Int] = {
+    val ans = if (n.value == 0) {
+      1.pure[Logged]
+    } else {
+      slowly(factorial4(n.map(_ - 1)).map(_ * n.value))
+    }
+    ans.mapWritten(_ ++ Vector(s"fact ${n.value} ${ans.value}"))
+  }
+
+  def factorial7(n: Logged[Int]): Logged[Int] = {
+    val ans = if (n.value == 0) {
+      1.pure[Logged]
+    } else {
+      slowly(factorial4(n.map(_ - 1)).map(_ * n.value))
+    }
+    ans.mapWritten(_ => Vector(s"fact ${n.value} ${ans.value}"))
+  }
+
   def main(args: Array[String]): Unit = {
     // Single factorial
     println(factorial(5))
@@ -39,15 +89,5 @@ object WriterMultiThreadedWorkout {
         Future(factorial(5))
       )), 5.seconds
     ))
-
-    // Multiple factorials in parallel - the log messages kept separate by use of writer monad
-    val result = Await.result(
-      Future.sequence(Vector(
-        Future(factorial2(5)),
-        Future(factorial2(6))
-      )), 5.seconds
-    )
-
-    result.foreach(w => println(s"Result [${w.value}] Log [${w.written.mkString(", ")}]"))
   }
 }

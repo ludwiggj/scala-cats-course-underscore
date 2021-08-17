@@ -7,6 +7,7 @@ import cats.syntax.either._
 import scala_cats.chapter04.WriterMonadWorkout.Logged
 import scala_cats.chapter04.ex_4_5_4.Validate.{illegalAgeException, validateAdult}
 import scala_cats.chapter04.ex_4_6_5.FoldEval.{foldRightSafe, foldRightTextbook}
+import scala_cats.chapter04.ex_4_7_3.WriterMultiThreadedWorkout._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
@@ -407,7 +408,7 @@ class MonadSpec extends UnitSpec {
     a <- 10.pure[Logged]
     _ <- Vector("a", "b", "c").tell
     b <- 32.writer(Vector("x", "y", "z"))
-  } yield (a + b)
+  } yield a + b
 
   it can "support for comprehension" in {
     assert(writer1.run == ((Vector("a", "b", "c", "x", "y", "z"), 42)))
@@ -446,5 +447,39 @@ class MonadSpec extends UnitSpec {
     val writer2 = writer1.swap
 
     assert(writer2.run == ((42, Vector("a", "b", "c", "x", "y", "z"))))
+  }
+
+  private def runParallelFactorials(factorial: Logged[Int] => Logged[Int]): Vector[(Vector[String], Int)] = {
+    Await.result(
+      Future.sequence(Vector(
+        Future(factorial(5.pure[Logged])),
+        Future(factorial(6.pure[Logged]))
+      )), 5.seconds
+    ).map(_.run)
+  }
+
+  it can "keep logs of parallel calculations segregated" in {
+    val fact5Result = (Vector("fact 0 1", "fact 1 1", "fact 2 2", "fact 3 6", "fact 4 24", "fact 5 120"), 120)
+    val fact6Result = (Vector("fact 0 1", "fact 1 1", "fact 2 2", "fact 3 6", "fact 4 24", "fact 5 120", "fact 6 720"), 720)
+
+    val result = Await.result(
+      Future.sequence(Vector(
+        Future(factorial2(5)),
+        Future(factorial2(6))
+      )), 5.seconds
+    ).map(_.run)
+
+    assert(result == Vector(fact5Result, fact6Result))
+    assert(runParallelFactorials(factorial3) == Vector(fact5Result, fact6Result))
+    assert(runParallelFactorials(factorial4) == Vector(fact5Result, fact6Result))
+    assert(runParallelFactorials(factorial5) == Vector(fact5Result, fact6Result))
+    assert(runParallelFactorials(factorial6) == Vector(fact5Result, fact6Result))
+  }
+
+  it can "keep logs of parallel calculations segregated but loses all but last log entry" in {
+    val fact5Result = (Vector("fact 5 120"), 120)
+    val fact6Result = (Vector("fact 6 720"), 720)
+
+    assert(runParallelFactorials(factorial7) == Vector(fact5Result, fact6Result))
   }
 }
