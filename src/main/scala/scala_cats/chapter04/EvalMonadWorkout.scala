@@ -1,6 +1,6 @@
 package scala_cats.chapter04
 
-object EvalWorkout {
+object EvalMonadWorkout {
   def main(args: Array[String]): Unit = {
     // Call by value (eager and memoized)
     val x = {

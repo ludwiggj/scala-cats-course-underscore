@@ -1,9 +1,10 @@
 package scala_cats.chapter04
 
-import cats.implicits.catsKernelStdOrderForInt
+import cats.implicits.{catsKernelStdOrderForInt, catsSyntaxWriterId}
 import scala_cats.UnitSpec
 import cats.{Eq, Monad}
 import cats.syntax.either._
+import scala_cats.chapter04.WriterMonadWorkout.Logged
 import scala_cats.chapter04.ex_4_5_4.Validate.{illegalAgeException, validateAdult}
 import scala_cats.chapter04.ex_4_6_5.FoldEval.{foldRightSafe, foldRightTextbook}
 
@@ -388,5 +389,62 @@ class MonadSpec extends UnitSpec {
   "foldSafeRight" can "sum a long list of numbers safely" in {
     assert(foldRightSafe((1 to 100000).toList, 0L)(_ + _).value == 5000050000L)
     assert(foldRightTextbook((1 to 100000).toList, 0L)(_ + _).value == 5000050000L)
+  }
+
+  "writer monad" can "return results" in {
+    import cats.implicits.catsSyntaxWriterId
+    val value = 123
+    val log = Vector("msg1", "msg2", "msg3")
+
+    val wm = 123.writer(log)
+
+    assert(wm.run == ((log, value)))
+    assert(wm.written == log)
+    assert(wm.value == value)
+  }
+
+  private val writer1 = for {
+    a <- 10.pure[Logged]
+    _ <- Vector("a", "b", "c").tell
+    b <- 32.writer(Vector("x", "y", "z"))
+  } yield (a + b)
+
+  it can "support for comprehension" in {
+    assert(writer1.run == ((Vector("a", "b", "c", "x", "y", "z"), 42)))
+  }
+
+  it can "transform log via mapWritten" in {
+    assert(writer1.mapWritten(_.map(_.toUpperCase)).written == Vector("A", "B", "C", "X", "Y", "Z"))
+  }
+
+  it can "transform log and result via bimap" in {
+    val writer2 = writer1.bimap(
+      log => log.map(_.toUpperCase),
+      res => res * 100
+    )
+
+    assert(writer2.run == ((Vector("A", "B", "C", "X", "Y", "Z"), 4200)))
+  }
+
+  it can "transform log and result via mapBoth" in {
+    val writer2 = writer1.mapBoth { (log, res) =>
+      val log2 = log.map(_ + "!")
+      val res2 = res * 1000
+      (log2, res2)
+    }
+
+    assert(writer2.run == ((Vector("a!", "b!", "c!", "x!", "y!", "z!"), 42000)))
+  }
+
+  it can "rest the log" in {
+    val writer2 = writer1.reset
+
+    assert(writer2.run == ((Vector(), 42)))
+  }
+
+  it can "swap log and result over" in {
+    val writer2 = writer1.swap
+
+    assert(writer2.run == ((42, Vector("a", "b", "c", "x", "y", "z"))))
   }
 }
