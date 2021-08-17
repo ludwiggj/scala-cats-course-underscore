@@ -474,8 +474,9 @@ class MonadSpec extends UnitSpec {
     assert(runParallelFactorials(factorial4) == Vector(fact5Result, fact6Result))
     assert(runParallelFactorials(factorial5) == Vector(fact5Result, fact6Result))
     assert(runParallelFactorials(factorial6) == Vector(fact5Result, fact6Result))
+    assert(runParallelFactorials(factorial8) == Vector(fact5Result, fact6Result))
   }
-
+  
   it can "keep logs of parallel calculations segregated but loses all but last log entry" in {
     val fact5Result = (Vector("fact 5 120"), 120)
     val fact6Result = (Vector("fact 6 720"), 720)
