@@ -1,12 +1,12 @@
-package scala_cats.chapter04
+package scala_cats.chapter04.workouts
 
 import cats.implicits.catsSyntaxEitherId
-import scala_cats.chapter04.wrapper.{LoginError, PasswordIncorrect, UnexpectedError, UserNotFound}
+import wrapper.{LoginError, PasswordIncorrect, UnexpectedError, UserNotFound}
 
-case class User(username: String, password: String)
+case class EitherMonadWorkout(username: String, password: String)
 
-object User {
-  type LoginResult = Either[LoginError, User]
+object EitherMonadWorkout {
+  type LoginResult = Either[LoginError, EitherMonadWorkout]
 
   def handleError(error: LoginError): Unit = {
     error match {
@@ -22,7 +22,7 @@ object User {
   }
 
   def main(args: Array[String]): Unit = {
-    val result1: LoginResult = User("dave", "passw0rd").asRight //[LoginError]
+    val result1: LoginResult = EitherMonadWorkout("dave", "passw0rd").asRight //[LoginError]
     val result2: LoginResult = UserNotFound("dave").asLeft //[User]
 
     result1.fold(handleError, println)

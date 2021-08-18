@@ -1,7 +1,7 @@
 package scala_cats.chapter04.ex_4_7_3
 
 import cats.implicits.{catsSyntaxApplicativeId, catsSyntaxWriterId}
-import scala_cats.chapter04.WriterMonadWorkout.Logged
+import scala_cats.chapter04.WriterMonad.Logged
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits._

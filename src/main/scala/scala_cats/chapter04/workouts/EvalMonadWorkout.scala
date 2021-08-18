@@ -1,4 +1,4 @@
-package scala_cats.chapter04
+package scala_cats.chapter04.workouts
 
 object EvalMonadWorkout {
   def main(args: Array[String]): Unit = {
@@ -76,7 +76,8 @@ object EvalMonadWorkout {
 
     val greeting = Eval
       .always {
-        println("Step 1"); "Hello"
+        println("Step 1");
+        "Hello"
       }
       .map { str => println("Step 2"); s"$str world" }
 
@@ -92,7 +93,8 @@ object EvalMonadWorkout {
     // mapping functions are always called lazily on demand (def semantics):
     val lazyGreeting = Eval
       .later {
-        println("Step 1"); "Hello"
+        println("Step 1");
+        "Hello"
       }
       .map { str => println("Step 2"); s"$str world" }
 
@@ -105,10 +107,12 @@ object EvalMonadWorkout {
     println("Defining ans")
     val ans = for {
       a <- Eval.now {
-        println("Calculating A"); 40
+        println("Calculating A");
+        40
       }
       b <- Eval.always {
-        println("Calculating B"); 2
+        println("Calculating B");
+        2
       }
     } yield {
       println("Adding A and B")
@@ -126,7 +130,8 @@ object EvalMonadWorkout {
 
     val saying = Eval
       .always {
-        println("Step 1"); "The cat"
+        println("Step 1");
+        "The cat"
       }
       .map { str => println("Step 2"); s"$str sat on" }
       .memoize

@@ -1,11 +1,11 @@
-package scala_cats.chapter04
+package scala_cats.chapter04.workouts
 
-import cats.{Id, data}
 import cats.data.{Writer, WriterT}
+import cats.{Id, data}
+import scala_cats.chapter04.WriterMonad.Logged
 
 object WriterMonadWorkout {
-  type Logged[A] = Writer[Vector[String], A]
-
+  
   // type Writer[L, V] = WriterT[Id, L, V]
   def main(args: Array[String]): Unit = {
     val wm1: WriterT[Id, Vector[String], Int] = Writer(Vector(
