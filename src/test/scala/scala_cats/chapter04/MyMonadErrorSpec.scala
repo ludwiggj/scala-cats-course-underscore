@@ -1,14 +1,15 @@
 package scala_cats.chapter04
 
 import cats.implicits.catsSyntaxMonadError
+import scala_cats.UnitSpec
+import scala_cats.chapter04.MyMonadError.{ErrorOr, catsMonadError, exn, getTemperatureByCoordinates, getTemperatureByCoordinatesAlternate, handleError, handleErrorWith}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
 import scala.util.Failure
-import scala_cats.UnitSpec
-import scala_cats.chapter04.MonadError.{ErrorOr, catsMonadError, exn, handleError, handleErrorWith}
 
-class MonadErrorSpec extends UnitSpec {
+class MyMonadErrorSpec extends UnitSpec {
   // trait MonadError[F[_], E] extends Monad[F]
   // F is the type of the monad;
   // E is the type of error contained within F.
@@ -87,6 +88,9 @@ class MonadErrorSpec extends UnitSpec {
 
     val failure2: ErrorOr[Int] = "Badness".raiseError[ErrorOr, Int]
     assert(handleError(failure2, 42, 0) == Right(42))
+
+    val failure3: ErrorOr[Int] = "Oh no".raiseError[ErrorOr, Int]
+    assert(handleError(failure3, 42, 0) == Right(0))
   }
 
   it can "handle success" in {
@@ -120,5 +124,23 @@ class MonadErrorSpec extends UnitSpec {
     type EitherWithIntError[A] = Either[Int, A]
 
     assert(2.raiseError[EitherWithIntError, String] == Left(2))
+  }
+
+  type MyEither[A] = Either[String, A]
+
+  "get temperature by co-ordinates" can "return temperature" in {
+    assert(getTemperatureByCoordinates[MyEither](44 -> 93) == Right(78))
+  }
+
+  "get temperature by co-ordinates alternate" can "return temperature" in {
+    assert(getTemperatureByCoordinatesAlternate[MyEither](44 -> 93) == Right(78))
+  }
+
+  it can "raise error for invalid coordinate" in {
+    assert(getTemperatureByCoordinatesAlternate[MyEither](44 -> -93) == Left("Invalid Coordinates"))
+  }
+
+  it can "raise error for (0,0) coordinate" in {
+    assert(getTemperatureByCoordinatesAlternate[MyEither](0 -> 0) == Left("(0,0) is at the singularity, dummy!"))
   }
 }

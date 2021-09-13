@@ -4,8 +4,9 @@ version := "0.0.1-SNAPSHOT"
 scalaVersion := "2.13.1"
 
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "cats-core" % "2.0.0",
-  "org.scalatest" %% "scalatest" % "3.2.2" % "test",
+  "org.typelevel" %% "cats-core" % "2.6.1",
+  "org.typelevel" %% "cats-effect" % "2.5.0",
+  "org.scalatest" %% "scalatest" % "3.2.9" % "test",
   "org.typelevel" %% "cats-testkit-scalatest" % "2.1.5" % "test"
 )
 
