@@ -4,7 +4,7 @@ import cats.effect.IO
 import kleislis.take2.Entity.{EntityB, EntityBId}
 import kleislis.take2.RIO.RIO
 
-object LoggingWorkout {
+object TraceableLoggingWorkout {
 
   trait ServiceA {
     def createA(a: EntityA): RIO[_]
