@@ -21,7 +21,7 @@ class CustomMonadSpec extends UnitSpec {
 
   "retryTailRecM" can "terminate even for a large recursion count" in {
     // stack overflow
-    assert(retryTailRecM[Option, Int](100000)(a => if (a == 0) None else Some(a - 1)).isEmpty)
+    assert(retryTailRecM[Option, Int](100000)(a => if (a == 0) None else Some(a - 1)) .isEmpty)
   }
 
   "retryM" can "terminate even for a large recursion count" in {

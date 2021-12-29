@@ -1,59 +1,88 @@
 package scala_cats.chapter05
 
-import cats.implicits.{catsSyntaxApplicativeErrorId, catsSyntaxApplicativeId, catsSyntaxEitherId}
-import scala_cats.UnitSpec
 import cats.data.OptionT
+import org.scalatest.Assertion
+import scala_cats.UnitSpec
 
 class MonadTransformerSpec extends UnitSpec {
-  // Alias Either to a type constructor with one parameter:
-  type ErrorOr[A] = Either[String, A]
+  "optionT" can "combine list of options" in {
+    import cats.syntax.applicative._ // for pure
+    // Book says we also need to import cats.instances.list._, but we don't!
 
-  // Build our final monad stack using OptionT:
-  // Equivalent to Either[String, Option[A]]
-  type ErrorOrOption[A] = OptionT[ErrorOr, A]
-
-  "list of options" can "combine via optionT" in {
     type ListOption[A] = OptionT[List, A]
 
     val result1: ListOption[Int] = OptionT(List(Option(10)))
-    println(result1)
-
     val result2: ListOption[Int] = 32.pure[ListOption]
-    println(result2)
 
+    // The map and flatMap methods combine the corresponding methods of List and Option into single operations:
     val result3 = result1.flatMap { x =>
       result2.map { y =>
         x + y
       }
     }
-    println(result3)
+
+    println(
+      s"""
+         |OptionT(List(Option(10)) = $result1
+         |32.pure[ListOption] = $result2
+         |Sum = $result3
+         |""".stripMargin)
+
+    val result4 = for {
+      r1 <- result1
+      r2 <- result2
+    } yield r1 + r2
 
     assert(result3 == 42.pure[ListOption])
-    assert(result3.value == List(Some(42)))
+    assert(result4.value == List(Some(42)))
   }
 
-  "either of options" can "combine via optionT - some success" in {
+  // Alias Either to a type constructor with one parameter:
+  type ErrorOr[A] = Either[String, A]
+
+  // Build our final monad stack using OptionT:
+
+  // Equivalent to Either[String, Option[A]]
+  //    OptionT[ErrorOr, A]
+  // => ErrorOr[Option[A]]
+  // => Either[String, Option[A]]
+
+  type ErrorOrOption[A] = OptionT[ErrorOr, A]
+
+  it can "combine either of options - both are Right(Some)" in {
+    import cats.syntax.applicative._ // for pure
+    import cats.syntax.either._      // for asRight
+
     val a = OptionT[ErrorOr, Int](Right(Some(10)))
-    println(a)
 
     val b = 21.pure[ErrorOrOption]
-    println(b)
 
-    val c = a.flatMap(x => b.map(y => x + y))
-    println(c)
+    val c: OptionT[ErrorOr, Int] = a.flatMap(x => b.map(y => x + y))
+
+    println(
+      s"""
+         |OptionT[ErrorOr, Int](Right(Some(10))) = $a
+         |21.pure[ErrorOrOption] = $b
+         |Sum is: $c
+         |""".stripMargin
+    )
 
     assert(c == 31.pure[ErrorOrOption])
-    assert(c.value == Some(31).asRight[String])
-    assert(c.value.map(_.getOrElse(-1)) == 31.asRight[String])
-    assert(c.value.getOrElse(-1) == Some(31))
+
+    val d: ErrorOr[Option[Int]] = c.value                // Either[String, Option[Int]]
+
+    assert(d == Some(31).asRight[String])
+    assert(d == 31.pure[ErrorOrOption].value)
+    assert(d.map(_.getOrElse(-1)) == 31.asRight[String]) // Either[String, Int]
+    assert(d.getOrElse(-1) == Some(31))                  // Option[Int]
   }
 
-  private def checkNoneSuccess(a: OptionT[ErrorOr, Int], b: OptionT[ErrorOr, Int]) = {
-    println(a)
-    println(b)
+  private def checkSuccess(a: OptionT[ErrorOr, Int], b: OptionT[ErrorOr, Int]): Assertion = {
+    import cats.syntax.either._      // for asRight
 
-    val c = a.flatMap(x => b.map(y => x + y))
-    println(c)
+    val c: OptionT[ErrorOr, Int] = a.flatMap(x => b.map(y => x + y))
+
+    println(s"Sum: $a + $b = $c")
 
     assert(c == b)
     assert(c.value == None.asRight[String])
@@ -61,43 +90,75 @@ class MonadTransformerSpec extends UnitSpec {
     assert(c.value.getOrElse(-1) == None)
   }
 
-  it can "combine via optionT - none success" in {
-    val a = OptionT[ErrorOr, Int](Right(Some(10)))
-    val b = OptionT[ErrorOr, Int](Right(None))
-    checkNoneSuccess(a, b)
-  }
+  it can "combine either of options - one is None" in {
+    import cats.syntax.applicative._ // for pure
 
-  it can "combine via optionT - none success 2" in {
-    import cats.implicits._
-    val a = OptionT[ErrorOr, Int](Right(Some(10)))
+    val a: ErrorOrOption[Int] = 10.pure[ErrorOrOption]
 
-    //    val b = None.pure[ErrorOrOption]
-    //    val b = none[Int].pure[ErrorOrOption]
-    //    val b = OptionT[ErrorOr, Int].pure(None)
-    //    val b = OptionT[ErrorOr, Int].pure(none[Int])
-    //    val b = OptionT.pure[ErrorOr](None)
-    //    val b = OptionT.pure[ErrorOr](none[Int])
-    val b = OptionT.none[ErrorOr, Int]
+    checkSuccess(
+      OptionT[ErrorOr, Int](Right(Some(10))),
+      OptionT[ErrorOr, Int](Right(None))
+    )
 
-    checkNoneSuccess(a, b)
+//    import cats.implicits._
+
+//    checkSuccess(
+//      a,
+//      None.pure[ErrorOrOption] // ErrorOrOption[None.type]
+//    )
+
+//    checkSuccess(
+//      a,
+//      none[Int].pure[ErrorOrOption]  // ErrorOrOption[Option[Int]]
+//    )
+
+//    checkSuccess(
+//      a,
+//      OptionT[ErrorOr, Int].pure(None) // None.type
+//    )
+
+//    checkSuccess(
+//      a,
+//      OptionT[ErrorOr, Int].pure(none[Int]) // Option[Int]
+//    )
+
+//    checkSuccess(
+//      a,
+//      OptionT.pure[ErrorOr](None) // OptionT[ErrorOr, None.type]
+//    )
+
+//    checkSuccess(
+//      a,
+//      OptionT.pure[ErrorOr](none[Int])
+//    )
+
+    checkSuccess(
+      a,
+      OptionT.none[ErrorOr, Int]
+    )
   }
 
   private def checkFailure(a: OptionT[ErrorOr, Int],
                            b: OptionT[ErrorOr, Int],
-                           errorMsg: String) = {
-    println(a)
-    println(b)
+                           errorMsg: String): Assertion = {
+    import cats.syntax.either._      // for asRight
 
-    val c = a.flatMap(x => b.map(y => x + y))
-    println(c)
+    val c: OptionT[ErrorOr, Int] = a.flatMap(x => b.map(y => x + y))
+
+    println(s"Sum: $a + $b = $c")
 
     assert(c == a)
-    assert(c.value == errorMsg.asLeft[Option[Int]])
-    assert(c.value.map(_.getOrElse(-1)) == errorMsg.asLeft[Int])
-    assert(c.value.getOrElse(-1) == -1)
+
+    val d: ErrorOr[Option[Int]] = c.value                // Either[String, Option[Int]]
+
+    assert(d == errorMsg.asLeft[Option[Int]])
+    assert(d.map(_.getOrElse(-1)) == errorMsg.asLeft[Int])
+    assert(d.getOrElse(-1) == -1)
   }
 
-  it can "combine via optionT - failure 1" in {
+  it can "combine failures - 1" in {
+    import cats.syntax.applicative._ // for pure
+
     val errorMsg = "Oh dear"
     val a = OptionT[ErrorOr, Int](Left(errorMsg))
     val b = 21.pure[ErrorOrOption]
@@ -105,7 +166,9 @@ class MonadTransformerSpec extends UnitSpec {
     checkFailure(a, b, errorMsg)
   }
 
-  it can "combine via optionT - failure 2" in {
+  it can "combine failures - 2" in {
+    import cats.implicits.{catsSyntaxApplicativeErrorId, catsSyntaxApplicativeId}
+
     val errorMsg = "Badness"
     val a = errorMsg.raiseError[ErrorOrOption, Int]
     val b = 21.pure[ErrorOrOption]
@@ -114,6 +177,8 @@ class MonadTransformerSpec extends UnitSpec {
   }
 
   "3 monad stack" can "represent future of either of option" in {
+    import cats.syntax.applicative._ // for pure
+    import cats.syntax.either._      // for asRight
     import scala.concurrent.Future
     import cats.data.{EitherT, OptionT}
 
@@ -121,12 +186,14 @@ class MonadTransformerSpec extends UnitSpec {
     // Inner monad is Either
     //   - Error type is String
     //   - Result type is A
-    type FutureEither[A] = EitherT[Future, String, A]
+    type FutureEither[A] = EitherT[Future, String, A] // Future[Either[String, A]]]
 
     // Outer monad is FutureEither
     // Inner monad is Option
     //   - Result type is A
-    type FutureEitherOption[A] = OptionT[FutureEither, A]
+    type FutureEitherOption[A] = OptionT[FutureEither, A] // OptionT[EitherT[Future, String, A], A]
+                                                          // FutureEither[Option[A]]
+                                                          // Future[Either[String, Option[A]]]]
 
     import cats.instances.future._ // for Monad
     import scala.concurrent.Await
@@ -138,10 +205,12 @@ class MonadTransformerSpec extends UnitSpec {
       for {
         a <- 17.pure[FutureEitherOption]
         b <- 26.pure[FutureEitherOption]
-      } yield (a + b)
+      } yield a + b
     println(futureEitherOr)
 
-    // Type is EitherT[Future, String, Option[Int]]
+    // Unpack monad transformers one level at a time
+
+    // Inner type is EitherT[Future, String, Option[Int]]
     val intermediate: FutureEither[Option[Int]] = futureEitherOr.value
     println(intermediate)
 

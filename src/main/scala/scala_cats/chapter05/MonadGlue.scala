@@ -17,8 +17,8 @@ object MonadGlue {
   def addAll(a: String, b: String, c: String): Logged[Option[Int]] = {
     import cats.data.OptionT
     val result: OptionT[Logged, Int] = for {
-      // final case class OptionT[F[_], A](value: F[Option[A]])
-      //                  OptionT[Logged[_], Int]
+      // final case class OptionT[F[_], A]        (value: F[Option[A]])
+      //                  OptionT[Logged[_], Int] (value: Logged[Option[Int]])
       a <- OptionT(parseNumber(a))
       b <- OptionT(parseNumber(b))
       c <- OptionT(parseNumber(c))
