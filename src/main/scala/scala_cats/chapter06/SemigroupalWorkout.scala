@@ -1,9 +1,9 @@
 package scala_cats.chapter06
 
-import cats.{Monoid, Semigroupal, Show}
-import cats.syntax.either._
-
 object SemigroupalWorkout {
+  import cats.{Monoid, Semigroupal, Show}
+  import cats.syntax.either._
+
   def parseInt(str: String): Either[String, Int] =
     Either.catchOnly[NumberFormatException](str.toInt).leftMap(_ => s"Couldn't read $str")
 
@@ -24,20 +24,17 @@ object SemigroupalWorkout {
   }
 
   // contramap2
-  val showDog: Show[Dog] = Semigroupal.contramap2[Show, String, Int, Dog](
-    Show[String], Show[Int]
-  )(
+  // Create ability to show a dog from showing the component parts
+  val showDog: Show[Dog] = Semigroupal.contramap2[Show, String, Int, Dog](Show[String], Show[Int]) {
     d => (d.name, d.age)
-  )
+  }
 
   // imap2
-  val anotherShowDog: Show[Dog] = Semigroupal.imap2[Show, String, Int, Dog](
-    Show[String], Show[Int]
-  )(
+  val anotherShowDog: Show[Dog] = Semigroupal.imap2[Show, String, Int, Dog](Show[String], Show[Int]) {
     (name, age) => Dog(name, age)
-  )(
+  } {
     d => (d.name, d.age)
-  )
+  }
 
   // mapN
   case class Cat(name: String, born: Int, colour: String)
@@ -59,8 +56,20 @@ object SemigroupalWorkout {
   // (Option("cats"), Option(true)).mapN(add)
 
   object FancyApply {
-    import cats.instances.invariant._ // for Semigroupal
-    import cats.syntax.apply._        // for imapN
+
+    import cats.instances.invariant._ // for:
+
+                                      // InvariantMonoidalInstances {
+                                      //   implicit def catsSemigroupalForMonoid: InvariantSemigroupal[Monoid] = ...
+                                      // }
+
+                                      // trait InvariantSemigroupal[F[_]] extends Semigroupal[F] with Invariant[F]
+
+                                      // This fulfils both implicits required by imapN method:
+
+                                      // (implicit invariant: Invariant[F], semigroupal: Semigroupal[F])
+
+    import cats.syntax.apply._ // for imapN
 
     final case class FancyCat(name: String, yearOfBirth: Int, favouriteFoods: List[String])
 
@@ -74,6 +83,19 @@ object SemigroupalWorkout {
       Monoid[Int],
       Monoid[List[String]]
       ).imapN(tupleToFancyCat)(fancyCatToTuple)
+  }
 
+  object Futures {
+    // Semigroupal of future
+
+    import scala.concurrent.ExecutionContext
+    import scala.concurrent.Future
+    import java.util.concurrent.Executors
+    import cats.instances.future._
+
+    implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(8))
+
+    // NOTE - Futures start running before product is called
+    val futurePair = Semigroupal[Future].product(Future("Hello"), Future(123))
   }
 }

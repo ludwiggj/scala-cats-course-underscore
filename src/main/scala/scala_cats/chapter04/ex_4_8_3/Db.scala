@@ -47,6 +47,4 @@ object Db {
         false.pure[DbReader]
       }
     } yield passwordMatches
-
-
 }

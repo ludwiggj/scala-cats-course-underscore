@@ -28,61 +28,51 @@ object WriterMultiThreadedWorkout {
     } yield ans
   }
 
-  def factorial3(n: Logged[Int]): Logged[Int] = {
-    for {
-      ans <- if (n.value == 0) {
-        1.pure[Logged]
-      } else {
-        slowly(factorial3(n.map(_ - 1)).map(_ * n.value))
-      }
-      _ <- Vector(s"fact ${n.value} $ans").tell
-    } yield ans
-  }
-
-  def factorial4(n: Logged[Int]): Logged[Int] = {
-    val ans = if (n.value == 0) {
+  // Following factorials have different strategies for the logging
+  def factorial3(n: Int): Logged[Int] = {
+    val ans = if (n == 0) {
       1.pure[Logged]
     } else {
-      slowly(factorial4(n.map(_ - 1)).map(_ * n.value))
+      slowly(factorial3(n-1).map(_ * n))
     }
     for {
       a <- ans
-      _ <- Vector(s"fact ${n.value} ${ans.value}").tell
+      _ <- Vector(s"fact $n ${ans.value}").tell
     } yield a
   }
 
-  def factorial5(n: Logged[Int]): Logged[Int] = {
-    val ans = if (n.value == 0) {
+  def factorial4(n: Int): Logged[Int] = {
+    val ans = if (n == 0) {
       1.pure[Logged]
     } else {
-      slowly(factorial4(n.map(_ - 1)).map(_ * n.value))
+      slowly(factorial4(n-1).map(_ * n))
     }
-    ans.flatMap(a => Vector(s"fact ${n.value} ${ans.value}").tell.map(_ => a))
+    ans.flatMap(a => Vector(s"fact $n ${ans.value}").tell.map(_ => a))
   }
 
-  def factorial6(n: Logged[Int]): Logged[Int] = {
-    val ans = if (n.value == 0) {
+  def factorial5(n: Int): Logged[Int] = {
+    val ans = if (n == 0) {
       1.pure[Logged]
     } else {
-      slowly(factorial4(n.map(_ - 1)).map(_ * n.value))
+      slowly(factorial5(n-1).map(_ * n))
     }
-    ans.mapWritten(_ ++ Vector(s"fact ${n.value} ${ans.value}"))
+    ans.mapWritten(_ ++ Vector(s"fact $n ${ans.value}"))
   }
 
-  def factorial7(n: Logged[Int]): Logged[Int] = {
-    val ans = if (n.value == 0) {
+  def factorial6(n: Int): Logged[Int] = {
+    val ans = if (n == 0) {
       1.pure[Logged]
     } else {
-      slowly(factorial4(n.map(_ - 1)).map(_ * n.value))
+      slowly(factorial6(n-1).map(_ * n))
     }
-    ans.mapWritten(_ => Vector(s"fact ${n.value} ${ans.value}"))
+    ans.mapWritten(_ => Vector(s"fact $n ${ans.value}"))
   }
 
   // The original version I was struggling with
-  def factorial8(n: Logged[Int]): Logged[Int] = {
+  def factorial7(n: Int): Logged[Int] = {
     val ans = slowly(
-      if (n.value == 0)
-        n.map(_ => 1)
+      if (n == 0)
+        1.pure[Logged]
       else {
         // This version loses all the log information returned in the recursive call,
         // as it is discarded by the .value method call
@@ -90,10 +80,10 @@ object WriterMultiThreadedWorkout {
         // n.map(i => i * factorial8(n.map(_ - 1)).value)
 
         // Whereas this one retains it
-        factorial8(n.map(_ - 1)).map(_ * n.value)
+        factorial7(n-1).map(_ * n)
       }
     )
-    ans.mapWritten(_ ++ Vector(s"fact ${n.value} ${ans.value}"))
+    ans.mapWritten(_ ++ Vector(s"fact $n ${ans.value}"))
   }
 
   // This approach doesn't make sense

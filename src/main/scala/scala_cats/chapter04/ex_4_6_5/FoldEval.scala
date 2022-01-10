@@ -14,7 +14,10 @@ object FoldEval {
   def foldRightSafe[A, B](as: List[A], acc: B)(fn: (A, B) => B): Eval[B] =
     as match {
       case head :: tail =>
-        Eval.defer(foldRightSafe(tail, acc)(fn).map(fn(head, _)))
+        Eval.defer {
+          val interim: Eval[B] = foldRightSafe(tail, acc)(fn)
+          interim.map(fn(head, _))
+        }
       case Nil =>
         Eval.now(acc)
     }

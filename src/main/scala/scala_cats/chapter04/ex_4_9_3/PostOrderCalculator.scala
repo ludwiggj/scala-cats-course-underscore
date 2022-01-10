@@ -96,7 +96,7 @@ object PostOrderCalculator {
       case Nil => sys.error("Fail!")
       case x :: Nil => x
       case x :: xs => xs.fold(x) { (a, b) =>
-        a.flatMap(_ => b.map(identity))
+        a.flatMap(_ => b)
       }
     }
 

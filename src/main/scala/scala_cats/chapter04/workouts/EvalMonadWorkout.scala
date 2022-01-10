@@ -12,7 +12,7 @@ object EvalMonadWorkout {
     println(x)
 
     // Call by name (lazy and not memoized)
-    def y = {
+    def y: Double = {
       println("Computing y")
       math.random
     }

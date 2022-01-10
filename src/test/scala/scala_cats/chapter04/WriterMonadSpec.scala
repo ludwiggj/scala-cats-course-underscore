@@ -1,7 +1,5 @@
 package scala_cats.chapter04
 
-import cats.implicits.catsSyntaxApplicativeId
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.DurationInt
@@ -49,7 +47,7 @@ class WriterMonadSpec extends UnitSpec {
       assert(writer2.run == ((Vector("a!", "b!", "c!", "x!", "y!", "z!"), 42000)))
     }
 
-    it can "rest the log" in {
+    it can "reset the log" in {
       val writer2 = writer1.reset
 
       assert(writer2.run == ((Vector(), 42)))
@@ -61,11 +59,11 @@ class WriterMonadSpec extends UnitSpec {
       assert(writer2.run == ((42, Vector("a", "b", "c", "x", "y", "z"))))
     }
 
-    private def runParallelFactorials(factorial: Logged[Int] => Logged[Int]): Vector[(Vector[String], Int)] = {
+    private def runParallelFactorials(factorial: Int => Logged[Int]): Vector[(Vector[String], Int)] = {
       Await.result(
         Future.sequence(Vector(
-          Future(factorial(5.pure[Logged])),
-          Future(factorial(6.pure[Logged]))
+          Future(factorial(5)),
+          Future(factorial(6))
         )), 5.seconds
       ).map(_.run)
     }
@@ -85,14 +83,13 @@ class WriterMonadSpec extends UnitSpec {
       assert(runParallelFactorials(factorial3) == Vector(fact5Result, fact6Result))
       assert(runParallelFactorials(factorial4) == Vector(fact5Result, fact6Result))
       assert(runParallelFactorials(factorial5) == Vector(fact5Result, fact6Result))
-      assert(runParallelFactorials(factorial6) == Vector(fact5Result, fact6Result))
-      assert(runParallelFactorials(factorial8) == Vector(fact5Result, fact6Result))
+      assert(runParallelFactorials(factorial7) == Vector(fact5Result, fact6Result))
     }
 
     it can "keep logs of parallel calculations segregated but loses all but last log entry" in {
       val fact5Result = (Vector("fact 5 120"), 120)
       val fact6Result = (Vector("fact 6 720"), 720)
 
-      assert(runParallelFactorials(factorial7) == Vector(fact5Result, fact6Result))
+      assert(runParallelFactorials(factorial6) == Vector(fact5Result, fact6Result))
     }
 }

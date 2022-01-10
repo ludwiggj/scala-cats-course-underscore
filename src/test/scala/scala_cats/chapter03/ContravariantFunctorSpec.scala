@@ -72,12 +72,54 @@ class ContravariantFunctorSpec extends UnitSpec {
     assert(format(Box(true)) === "yes")
   }
 
+  it can "format a boxed option" in {
+    import scala_cats.chapter03.ex_3_6_1_1.Box.Version3.printableBox
+    implicit def impOptionPrintable[A]: Printable[Option[A]] = (value: Option[A]) => value match {
+      case Some(v) => v.toString
+      case _ => "None"
+    }
+
+    assert(format(Box(Option(6))) === "6")
+    assert(format(Box(Option("Hello"))) === "Hello")
+    assert(format(Box(Option.empty[Int])) === "None")
+  }
+
+  "boxPrintable textbook" can "format a boxed string" in {
+    import scala_cats.chapter03.ex_3_6_1_1.Box.Textbook
+
+    val printableBoxString: Printable[Box[String]] = Textbook.boxPrintable(stringPrintable)
+
+    assert(printableBoxString.format(Box("6")) === "'6'")
+  }
+
+  "optionOfBoxPrintable" can "format an option of a box" in {
+    import scala_cats.chapter03.ex_3_6_1_1.Box.OptionOfBox.printableOptionBox
+
+    implicit def impOptionPrintable[A]: Printable[Option[A]] = (value: Option[A]) => value match {
+      case Some(v) => v.toString
+      case _ => "None"
+    }
+
+    // Can't use contramap to translate an Option[A] to an A, as have no way of translating a None to an A
+//    implicit def impOptionPrintable[A](implicit p: Printable[A]): Printable[Option[A]] =
+//      p.contramap(_.match {
+//        case Some(v) => v
+//        case None => ???
+//      })
+
+    // i.e. cannot use contramap if source is A and target is Option[A], or Option[Something[A]]
+
+    assert(format(Option(Box("6"))) === "6")
+    assert(format(Option(Box(12))) === "12")
+    assert(format(Option.empty[Int]) === "None")
+  }
+
   "cats contravariant" can "show symbol" in {
     import cats.Contravariant
     import cats.Show
 
     val showString = Show[String]
-    val showSymbol = Contravariant[Show].contramap(showString)((sym: Symbol) => s"'${sym.name}")
+    val showSymbol: Show[Symbol] = Contravariant[Show].contramap(showString)((sym: Symbol) => s"'${sym.name}")
 
     assert(showSymbol.show(Symbol("Graeme")) === "'Graeme")
   }
@@ -87,7 +129,7 @@ class ContravariantFunctorSpec extends UnitSpec {
     import cats.Show
 
     val showString = Show[String]
-    val showSymbol = showString.contramap[Symbol](sym => s"'${sym.name}")
+    val showSymbol: Show[Symbol] = showString.contramap[Symbol](sym => s"'${sym.name}")
 
     assert(showSymbol.show(Symbol("Graeme")) === "'Graeme")
   }
