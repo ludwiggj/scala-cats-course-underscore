@@ -24,7 +24,7 @@ class SemigroupalAndParallelSpec extends UnitSpec {
   val errorL1: ErrorOrList[Int] = Left(List("Error 1"))
   val errorL2: ErrorOrList[Int] = Left(List("Error 2"))
 
-  val addTwo = (x: Int, y: Int) => x + y
+  val add = (x: Int, y: Int) => x + y
 
   "parser" can "add 3 parsed numbers" in {
     assert(add3Numbers("1", "2", "3") == Right(6))
@@ -125,13 +125,13 @@ class SemigroupalAndParallelSpec extends UnitSpec {
 
   it can "add two numbers" in {
     import cats.syntax.apply._ // for mapN
-    assert((success1, success2).mapN(addTwo) == Right(3))
+    assert((success1, success2).mapN(add) == Right(3))
   }
 
   it can "fail to add two numbers, retaining first error only" in {
     import cats.syntax.apply._ // for mapN
-    assert((error1, error2).mapN(addTwo) == error1)
-    assert((errorL1, errorL2).mapN(addTwo) == errorL1)
+    assert((error1, error2).mapN(add) == error1)
+    assert((errorL1, errorL2).mapN(add) == errorL1)
   }
 
   "tupleToFancyCat" can "construct a cat from a tuple" in {
@@ -164,13 +164,13 @@ class SemigroupalAndParallelSpec extends UnitSpec {
 
   "parMapN" can "add two numbers" in {
     import cats.syntax.parallel._ // for parMapN
-    assert((success1, success2).parMapN(addTwo) == Right(3))
+    assert((success1, success2).parMapN(add) == Right(3))
   }
 
   it can "fail to add two numbers, retaining all errors" in {
     import cats.syntax.parallel._ // for parMapN
-    assert((error1, error2).parMapN(addTwo) == Left(Vector("Error 1", "Error 2")))
-    assert((errorL1, errorL2).parMapN(addTwo) == Left(List("Error 1", "Error 2")))
+    assert((error1, error2).parMapN(add) == Left(Vector("Error 1", "Error 2")))
+    assert((errorL1, errorL2).parMapN(add) == Left(List("Error 1", "Error 2")))
   }
 
   "optionToList" can "convert option to list" in {
