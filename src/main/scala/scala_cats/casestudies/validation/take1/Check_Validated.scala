@@ -1,4 +1,4 @@
-package scala_cats.casestudies.validation
+package scala_cats.casestudies.validation.take1
 
 import cats.Semigroup
 import cats.data.Validated

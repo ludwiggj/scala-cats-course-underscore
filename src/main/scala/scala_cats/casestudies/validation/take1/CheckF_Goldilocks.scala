@@ -1,8 +1,8 @@
-package scala_cats.casestudies.validation
+package scala_cats.casestudies.validation.take1
 
 import cats.Semigroup
-import cats.syntax.parallel._ // for parMapN
 import cats.syntax.apply._    // for mapN
+import cats.syntax.parallel._ // for parMapN
 
 final case class CheckF_Goldilocks[E, A](func: A => Either[E, A]) {
   def apply(value: A): Either[E, A] = func(value)

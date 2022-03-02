@@ -1,4 +1,4 @@
-package scala_cats.casestudies.validation
+package scala_cats.casestudies.validation.take1
 
 import cats.Semigroup
 import cats.syntax.semigroup._
@@ -12,7 +12,7 @@ sealed trait Check_Either[E, A] {
     case And(left, right) =>
       // Either fails fast wrt errors, so we have to handle them explicitly
       // Validated accumulates the errors rather than fail fast; it's a better fit here
-      // See MyValidated for a better implementation, based on Validated instead of Either
+      // See Check_Validated for a better implementation, based on Validated instead of Either
       (left(a), right(a)) match {
         case (Right(a), Right(_)) => Right(a)
         case (Left(e), Right(_)) => Left(e)

@@ -1,11 +1,10 @@
-package scala_cats.casestudies.validation
+package scala_cats.casestudies.validation.take1
 
-import cats.Monoid
-import scala_cats.UnitSpec
+import cats.{Monoid, Semigroup}
+import cats.data.Validated.{Invalid, Valid}
 import cats.syntax.either._
 import cats.syntax.parallel._
-import cats.Semigroup
-import cats.data.Validated.{Invalid, Valid}
+import scala_cats.UnitSpec
 
 class CheckSpec extends UnitSpec {
   private val validValue = "A valid value"
