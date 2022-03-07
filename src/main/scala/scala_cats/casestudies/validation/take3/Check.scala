@@ -3,10 +3,13 @@ package scala_cats.casestudies.validation.take3
 import cats.Semigroup
 import cats.data.Validated
 
+// From 10.4.3 recap, a complete definition for each ADT
 sealed trait Check[E, A, B] {
   import Check._
 
   // this function needs to be implemented per trait
+  // Due to a type inference bug in Scala’s pattern matching, we’ve
+  // switched to implementing apply using inheritance
   def apply(a: A)(implicit s: Semigroup[E]): Validated[E, B]
 
   def map[C](f: B => C): Check[E, A, C] = Map(this, f)
@@ -40,21 +43,20 @@ object Check {
       check(a).withEither(_.flatMap(b => next(b).toEither))
   }
 
-  final case class Pure[E, A](
-                               f: A => Validated[E, A]
-                             ) extends Check[E, A, A] {
-    def apply(a: A)(implicit s: Semigroup[E]): Validated[E, A] =
-      f(a)
-  }
+  // This is equivalent of Check.apply from take2
+  def apply[E, A](pred: Predicate[E, A]): Check[E, A, A] = PurePredicate(pred)
 
-  final case class PurePredicate[E, A](
-                                        pred: Predicate[E, A]
-                                      ) extends Check[E, A, A] {
+  final case class PurePredicate[E, A](pred: Predicate[E, A]) extends Check[E, A, A] {
     def apply(a: A)(implicit s: Semigroup[E]): Validated[E, A] =
       pred(a)
   }
 
-  def apply[E, A](f: A => Validated[E, A]): Check[E, A, A] = Pure(f)
+  // This is similar to PurePredicate, but has a more general type signature
+  // It's key to the implementation of the email validation checks
+  def apply[E, A, B](f: A => Validated[E, B]): Check[E, A, B] = Pure(f)
 
-  def apply[E, A](pred: Predicate[E, A]): Check[E, A, A] = PurePredicate(pred)
+  final case class Pure[E, A, B](f: A => Validated[E, B]) extends Check[E, A, B] {
+    def apply(a: A)(implicit s: Semigroup[E]):  Validated[E, B] =
+      f(a)
+  }
 }

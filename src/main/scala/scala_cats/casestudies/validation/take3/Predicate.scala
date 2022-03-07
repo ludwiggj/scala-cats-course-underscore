@@ -45,6 +45,7 @@ object Predicate {
 
   def pure[E, A](f: A => Validated[E, A]): Predicate[E, A] = Pure(f)
 
+  // This is a new function
   def lift[E, A](err: E, fn: A => Boolean): Predicate[E, A] =
     Pure(a => if (fn(a)) a.valid else err.invalid)
 }

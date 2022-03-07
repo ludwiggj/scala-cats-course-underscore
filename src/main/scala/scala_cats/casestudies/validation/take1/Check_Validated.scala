@@ -36,9 +36,8 @@ sealed trait Check_Validated[E, A] {
 
     case Or(left, right) =>
       (left(a), right(a)) match {
-        case (Valid(a), Valid(_)) => Valid(a)
-        case (Invalid(_), Valid(a)) => Valid(a)
-        case (Valid(a), Invalid(_)) => Valid(a)
+        case (Valid(a), _) => Valid(a)
+        case (_, Valid(a)) => Valid(a)
         case (Invalid(e1), Invalid(e2)) => Invalid(e1 |+| e2)
      }
   }

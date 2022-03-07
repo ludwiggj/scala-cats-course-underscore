@@ -7,6 +7,7 @@ import cats.syntax.apply._     // for MapN
 import cats.syntax.semigroup._ // for |+|
 import Predicate._
 
+// This is basically Check_Validated from take 1, renamed as Predicate
 sealed trait Predicate[E, A] {
   def and(that: Predicate[E, A]): Predicate[E, A] = And(this, that)
 
