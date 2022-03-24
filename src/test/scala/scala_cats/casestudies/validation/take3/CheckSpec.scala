@@ -1,14 +1,11 @@
 package scala_cats.casestudies.validation.take3
 
-import cats.data.NonEmptyList
 import cats.syntax.validated._
 import scala_cats.UnitSpec
 
 class CheckSpec extends UnitSpec {
   import Errors._
   import Checks._
-
-  def errors(first: String, rest: List[String]): Errors = NonEmptyList(first, rest)
 
   "username check" can "return true if user name meets all criteria" in {
     assert(isValidUserNameCheck("ludwiggj") == "ludwiggj".valid)
