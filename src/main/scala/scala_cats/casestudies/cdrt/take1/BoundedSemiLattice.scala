@@ -1,4 +1,4 @@
-package scala_cats.casestudies.cdrt
+package scala_cats.casestudies.cdrt.take1
 
 import cats.kernel.CommutativeMonoid
 
@@ -14,7 +14,7 @@ object BoundedSemiLattice {
     override def empty: Int = 0
   }
 
-  implicit def setInstance[A](): BoundedSemiLattice[Set[A]] = new BoundedSemiLattice[Set[A]] {
+  implicit def setInstance[A]: BoundedSemiLattice[Set[A]] = new BoundedSemiLattice[Set[A]] {
     override def combine(a1: Set[A], a2: Set[A]): Set[A] = a1.union(a2)
 
     override def empty: Set[A] = Set.empty[A]

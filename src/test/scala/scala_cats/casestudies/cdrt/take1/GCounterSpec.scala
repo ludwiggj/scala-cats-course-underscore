@@ -1,4 +1,4 @@
-package scala_cats.casestudies.cdrt
+package scala_cats.casestudies.cdrt.take1
 
 import scala_cats.UnitSpec
 
