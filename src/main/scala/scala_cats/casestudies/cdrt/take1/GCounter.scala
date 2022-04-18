@@ -23,13 +23,4 @@ final case class GCounter(counters: Map[String, Int]) {
   }
 
   def total: Int = counters.values.foldLeft(Monoid[Int].empty)(_ |+| _)
-
-  def mergeTextbook(that: GCounter): GCounter =
-    GCounter(that.counters ++ this.counters.map {
-      case (k, v) =>
-        k -> (v max that.counters.getOrElse(k, 0))
-    })
-
-  def totalTextbook: Int =
-    counters.values.sum
 }

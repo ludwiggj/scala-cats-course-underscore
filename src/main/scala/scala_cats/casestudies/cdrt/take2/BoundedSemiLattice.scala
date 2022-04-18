@@ -1,4 +1,4 @@
-package scala_cats.casestudies.cdrt.take1
+package scala_cats.casestudies.cdrt.take2
 
 import cats.kernel.CommutativeMonoid
 
