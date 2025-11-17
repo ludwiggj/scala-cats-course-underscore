@@ -9,8 +9,12 @@ trait UptimeClient[F[_]] {
   def getUptime(hostname: String): F[Int]
 }
 
-trait RealUptimeClient extends UptimeClient[Future] {
-  override def getUptime(hostname: String): Future[Int] = ???
+class RealUptimeClient extends UptimeClient[Future] {
+  override def getUptime(hostname: String): Future[Int] = Future.successful(hostname match {
+    case "host1" => 10
+    case "host2" => 6
+    case _ => 0
+  })
 }
 
 class TestUptimeClient(hosts: Map[String, Int]) extends UptimeClient[Id] {

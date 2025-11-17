@@ -1,6 +1,6 @@
 package scala_cats.casestudies.testing.take2
 
-import cats.Applicative
+import cats.Applicative // needed for traverse
 import cats.instances.list._
 import cats.syntax.functor._
 import cats.syntax.traverse._
